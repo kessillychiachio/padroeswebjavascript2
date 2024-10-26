@@ -5,60 +5,95 @@ const longoBt = document.querySelector('.app__card-button--longo');
 const banner = document.querySelector('.app__image');
 const titulo = document.querySelector('.app__title');
 const botoes = document.querySelectorAll('.app__card-button');
+const startPauseBt = document.querySelector('#start-pause');
+const iniciarouPausarBt = document.querySelector('#start-pause span');
+const iconIniciarOuPausarBt = document.querySelector('.app__card-primary-butto-icon');
 
 const musicaFocoInput = document.querySelector('#alternar-musica');
 const musica = new Audio('/sons/luna-rise-part-one.mp3');
+const somPause = new Audio('/sons/pause.mp3');
+const somFim = new Audio('/sons/beep.mp3');
 
-musica.loop = true ;
+musica.loop = true;
+
 musicaFocoInput.addEventListener('change', () => {
-  if(musica.paused) {
+  if (musica.paused) {
     musica.play();
   } else {
     musica.pause();
+    somPause.play();
   }
-})
+});
+
+let tempoDecorridoEmSegundos = 5;
+let intervaloId = null;
 
 focoBt.addEventListener('click', () => {
   alterarContexto('foco');
-  focoBt.classList.add ('active');
+  focoBt.classList.add('active');
 });
 
 curtoBt.addEventListener('click', () => {
   alterarContexto('descanso-curto');
-  curtoBt.classList.add ('active');
+  curtoBt.classList.add('active');
 });
 
 longoBt.addEventListener('click', () => {
   alterarContexto('descanso-longo');
-  longoBt.classList.add ('active');
+  longoBt.classList.add('active');
 });
 
 function alterarContexto(contexto) {
   html.setAttribute('data-contexto', contexto);
   banner.setAttribute('src', `/imagens/${contexto}.png`);
-  botoes.forEach(function (contexto) {
-    contexto.classList.remove ('active');
-  })
+
+  botoes.forEach(botao => botao.classList.remove('active'));
 
   switch (contexto) {
     case "foco":
       titulo.innerHTML = `Otimize sua produtividade,
-      <br> <strong class="app__title-strong"> mergulhe no que importa. </strong>`
+      <br> <strong class="app__title-strong"> mergulhe no que importa. </strong>`;
       break;
     case "descanso-curto":
       titulo.innerHTML = `Que tal dar uma respirada?
-      <br> <strong class="app__title-strong"> Faça uma pausa curta! </strong>`
+      <br> <strong class="app__title-strong"> Faça uma pausa curta! </strong>`;
       break;
     case "descanso-longo":
       titulo.innerHTML = `Hora de voltar à superfície.
-      <strong class ="app__title-strong"> Faça uma pausa longa. </strong>`
-      break;
-    default:
+      <strong class="app__title-strong"> Faça uma pausa longa. </strong>`;
       break;
   }
 }
 
+const contagemRegressiva = () => {
+  tempoDecorridoEmSegundos -= 1;
+  if (tempoDecorridoEmSegundos <= 0) {
+    alert('Tempo esgotado!');
+    parar(somFim);
+    return;
+  }
+  console.log('Temporizador = ' + tempoDecorridoEmSegundos);
+};
 
+startPauseBt.addEventListener('click', iniciarouPausar);
 
+function iniciarouPausar() {
+  if (intervaloId) {
+    somPause.play();
+    parar();
+    return;
+  }
+  iniciarouPausarBt.textContent = "Parar";
+  iconIniciarOuPausarBt.setAttribute('src', '/imagens/pause.png');
+  musica.play();
+  intervaloId = setInterval(contagemRegressiva, 1000);
+}
 
-
+function parar(som = null) {
+  iniciarouPausarBt.textContent = "Começar";
+  iconIniciarOuPausarBt.setAttribute('src', '/imagens/play_arrow.png');
+  clearInterval(intervaloId);
+  intervaloId = null;
+  if (som) som.play();
+  tempoDecorridoEmSegundos = 5; // Reinicia o temporizador
+}
