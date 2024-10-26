@@ -8,6 +8,7 @@ const botoes = document.querySelectorAll('.app__card-button');
 const startPauseBt = document.querySelector('#start-pause');
 const iniciarouPausarBt = document.querySelector('#start-pause span');
 const iconIniciarOuPausarBt = document.querySelector('.app__card-primary-butto-icon');
+const tempoNaTela = document.querySelector('#timer'); 
 
 const musicaFocoInput = document.querySelector('#alternar-musica');
 const musica = new Audio('/sons/luna-rise-part-one.mp3');
@@ -25,25 +26,29 @@ musicaFocoInput.addEventListener('change', () => {
   }
 });
 
-let tempoDecorridoEmSegundos = 5;
+let tempoDecorridoEmSegundos = 1500;
 let intervaloId = null;
 
 focoBt.addEventListener('click', () => {
+  tempoDecorridoEmSegundos = 1500;
   alterarContexto('foco');
   focoBt.classList.add('active');
 });
 
 curtoBt.addEventListener('click', () => {
+  tempoDecorridoEmSegundos = 300;
   alterarContexto('descanso-curto');
   curtoBt.classList.add('active');
 });
 
 longoBt.addEventListener('click', () => {
+  tempoDecorridoEmSegundos = 900;
   alterarContexto('descanso-longo');
   longoBt.classList.add('active');
 });
 
 function alterarContexto(contexto) {
+  mostrarTempo();
   html.setAttribute('data-contexto', contexto);
   banner.setAttribute('src', `/imagens/${contexto}.png`);
 
@@ -60,7 +65,7 @@ function alterarContexto(contexto) {
       break;
     case "descanso-longo":
       titulo.innerHTML = `Hora de voltar à superfície.
-      <strong class="app__title-strong"> Faça uma pausa longa. </strong>`;
+      <br> <strong class="app__title-strong"> Faça uma pausa longa. </strong>`;
       break;
   }
 }
@@ -72,7 +77,7 @@ const contagemRegressiva = () => {
     parar(somFim);
     return;
   }
-  console.log('Temporizador = ' + tempoDecorridoEmSegundos);
+  mostrarTempo(); // Atualiza o display do tempo
 };
 
 startPauseBt.addEventListener('click', iniciarouPausar);
@@ -95,5 +100,14 @@ function parar(som = null) {
   clearInterval(intervaloId);
   intervaloId = null;
   if (som) som.play();
-  tempoDecorridoEmSegundos = 5; // Reinicia o temporizador
+  tempoDecorridoEmSegundos = 5;
+  mostrarTempo();
 }
+
+function mostrarTempo() {
+  const tempo = new Date(tempoDecorridoEmSegundos*1000);
+  const tempoFormatado = tempo.toLocaleTimeString('pt-BR', {minute: '2-digit', second: '2-digit'});
+  tempoNaTela.innerHTML = `${tempoFormatado}`;
+}
+
+mostrarTempo();
